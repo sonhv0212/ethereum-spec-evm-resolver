@@ -123,11 +123,11 @@ Resolution = Union[LocalResolution, SameAsResolution, GitResolution]
 def get_default_resolutions() -> Dict[str, Resolution]:
     resolutions = {
         "EELSMaster": {
-            "git_url": "https://github.com/ethereum/execution-specs.git",
+            "git_url": "https://github.com/sonhv0212/execution-specs.git",
             "branch": "master",
         },
         "Prague": {
-            "git_url": "https://github.com/ethereum/execution-specs.git",
+            "git_url": "https://github.com/sonhv0212/execution-specs.git",
             "branch": "forks/prague",
         },
     }
