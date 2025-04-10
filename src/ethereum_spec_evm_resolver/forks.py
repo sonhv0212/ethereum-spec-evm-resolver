@@ -59,6 +59,7 @@ class GitResolution(BaseModel):
         fork_dir = data_dir / fork_name
         lock = FileLock(data_dir / (fork_name + ".lock"))
         info_file = data_dir / (fork_name + ".info")
+        print(12312312312)
         with lock:
             try:
                 info = GitResolutionInfo.model_validate_json(info_file.read_text())
@@ -66,13 +67,18 @@ class GitResolution(BaseModel):
                     if self.commit is not None or datetime.now(
                         tz=timezone.utc
                     ) - info.timestamp < timedelta(hours=RELOAD_CHECK_HOURS):
+                        print(123123123124)
+                        
                         return ResolutionInfo(path=fork_dir)
                 if self.commit is None:
                     if self.get_remote_head() == info.head:
                         info.timestamp = datetime.now(tz=timezone.utc)
                         info_file.write_text(info.model_dump_json())
+                        print(123123123123)
                         return ResolutionInfo(path=fork_dir)
+                
             except (FileNotFoundError, ValidationError):
+                print("File not found or validation error")
                 pass
             info_file.unlink(missing_ok=True)
             if fork_dir.exists():

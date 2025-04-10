@@ -41,12 +41,14 @@ def main():
     )
 
     (args, _) = parser.parse_known_args()
+    print(123123123123123)
 
     Path(platformdirs.user_cache_dir("ethereum-spec-evm-resolver")).mkdir(
         parents=True, exist_ok=True
     )
 
     if args.subcommand in ["t8n", "b11r", "spawn-daemon"]:
+        print(123123123123123, args.subcommand)
         get_fork_resolution(args.state_fork).resolve(args.state_fork).add_to_path()
         if args.subcommand == "spawn-daemon":
             # Underscore to avoid clash with global variable

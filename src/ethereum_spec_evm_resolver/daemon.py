@@ -71,6 +71,7 @@ class _UnixSocketHttpServer(socketserver.UnixStreamServer):
 
     @staticmethod
     def get_subserver_url(path: str, fork: str):
+        print("Getting subserver URL")
         socket_path = runtime_dir / (fork + "." + str(os.getpid()) + ".sock")
         quoted_str = quote(str(socket_path), safe="")
 
@@ -80,18 +81,21 @@ class _UnixSocketHttpServer(socketserver.UnixStreamServer):
         return urlunparse(parsed)
 
     def get_request(self) -> Tuple[Any, Any]:
+        print("Getting request")
         request, client_address = super().get_request()
         return request, ["local", 0]
 
     def finish_request(
         self, request: Union[socket, Tuple[bytes, socket]], client_address: Any
     ) -> None:
+        print("Finishing request")
         try:
             super().finish_request(request, client_address)
         finally:
             self.last_response = time.monotonic()
 
     def check_timeout(self) -> None:
+        print("Starting timeout check thread")
         while True:
             time.sleep(11.0)
             now = time.monotonic()
@@ -103,6 +107,7 @@ class _UnixSocketHttpServer(socketserver.UnixStreamServer):
                 break
 
     def spawn_subserver(self, fork):
+        print(f"Spawning subserver for {fork}")
         with self.lock:
             if fork not in self.running_daemons:
                 get_fork_resolution(fork).resolve(fork)
@@ -139,6 +144,7 @@ class _UnixSocketHttpServer(socketserver.UnixStreamServer):
                         wait_time *= 2
 
     def kill_subprocesses(self):
+        print("Killing subprocesses")
         for process in self.processes:
             process.terminate()
         sleep(1)
@@ -156,22 +162,30 @@ class Daemon:
 
     def _run(self) -> int:
         # Perform cleanup when receiving SIGTERM
+        print(1)
         signal.signal(signal.SIGTERM, lambda x, y: sys.exit())
+        print(2)
 
         try:
             os.remove(self.uds)
         except IOError:
             pass
+        
+        print(3)
 
         with _UnixSocketHttpServer(self.uds, _EvmToolHandler) as server:
+            print(4)
             server.timeout = 7.0
             timer = Thread(target=server.check_timeout, daemon=True)
             timer.start()
+            print(5)
 
             try:
                 server.serve_forever()
+                print(6)
             finally:
                 server.kill_subprocesses()
+                print(7)
 
         return 0
 
